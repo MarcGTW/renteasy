@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -35,9 +36,11 @@ class AuthScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: FilledButton(
-                onPressed: () {},
-                child: const Text('Войти'),
-              ),
+                  onPressed: () {
+               context.go('/home');
+                  },
+                  child: const Text('Войти'),
+                ),
             ),
             TextButton(
               onPressed: () {},
