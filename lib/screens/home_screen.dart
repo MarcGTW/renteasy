@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/property_card.dart';
-import 'details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -9,7 +11,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('RentEasy — Недвижимость')),
+      appBar: AppBar(
+        title: const Text('RentEasy — Недвижимость'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -32,17 +36,34 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          Text('Рекомендуемые объекты', style: Theme.of(context).textTheme.titleLarge),
+
+          Text(
+            'Рекомендуемые объекты',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 12),
-          ...mockProperties.take(3).map((property) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: PropertyCard(
-                  property: property,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => DetailsScreen(property: property)));
-                  },
-                ),
-              )),
+
+          ...mockProperties.take(3).map(
+            (property) => Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: PropertyCard(
+                property: property,
+                onTap: () {
+                  context.push('/properties/${property.id}');
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          FilledButton.icon(
+            onPressed: () {
+              context.push('/properties');
+            },
+            icon: const Icon(Icons.search),
+            label: const Text('Посмотреть весь каталог'),
+          ),
         ],
       ),
     );
