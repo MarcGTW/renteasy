@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
-import 'booking_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class DetailsScreen extends StatelessWidget {
   final Property property;
@@ -37,9 +37,9 @@ class DetailsScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: FilledButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => BookingScreen(propertyTitle: property.title)));
-                },
+               onPressed: () {
+  context.push('/properties/${property.id}/book');
+},
                 child: const Text('Записаться на просмотр'),
               ),
             ),
