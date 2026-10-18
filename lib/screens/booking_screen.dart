@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BookingScreen extends StatelessWidget {
   final String propertyTitle;
@@ -26,7 +27,7 @@ class BookingScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: FilledButton(
-                onPressed: () => Navigator.pop(context),
+               onPressed: () => context.pop(),
                 child: const Text('Отправить заявку'),
               ),
             ),
