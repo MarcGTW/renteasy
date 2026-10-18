@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../data/mock_data.dart';
 import '../widgets/property_card.dart';
-import 'details_screen.dart';
 
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
@@ -9,7 +11,9 @@ class CatalogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Каталог недвижимости')),
+      appBar: AppBar(
+        title: const Text('Каталог недвижимости'),
+      ),
       body: Column(
         children: [
           const Padding(
@@ -26,13 +30,15 @@ class CatalogScreen extends StatelessWidget {
             child: ListView.separated(
               padding: const EdgeInsets.all(12),
               itemCount: mockProperties.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) =>
+                  const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final item = mockProperties[index];
+
                 return PropertyCard(
                   property: item,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => DetailsScreen(property: item)));
+                    context.push('/properties/${item.id}');
                   },
                 );
               },
