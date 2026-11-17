@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../models/booking.dart';
+import '../models/booking_model.dart';
 
 class BookingScreen extends StatefulWidget {
   final String propertyTitle;
@@ -23,6 +27,7 @@ class _BookingScreenState extends State<BookingScreen> {
   final _dateController = TextEditingController();
 
   DateTime? _selectedDateTime;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -64,25 +69,56 @@ class _BookingScreenState extends State<BookingScreen> {
       _dateController.text =
           '${date.day.toString().padLeft(2, '0')}.'
           '${date.month.toString().padLeft(2, '0')}.'
-          '${date.year} '
-          '${time.format(context)}';
+          '${date.year} ${time.format(context)}';
     });
 
     _formKey.currentState?.validate();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    if (_isSubmitting) return;
+
     if (!_formKey.currentState!.validate()) return;
 
-    final messenger = ScaffoldMessenger.of(context);
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    context.pop();
+    final booking = Booking(
+  id: '0',
+  propertyTitle: widget.propertyTitle,
+  name: _nameController.text.trim(),
+  phone: _phoneController.text.trim(),
+  date: _dateController.text.split(' ').first,
+  time: TimeOfDay.fromDateTime(
+    _selectedDateTime!,
+  ).format(context),
+  status: 'Ожидает',
+);
 
-    messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Заявка на просмотр успешно отправлена!'),
-      ),
-    );
+    final success = await context.read<BookingModel>().add(booking);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    if (success) {
+      context.pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Заявка успешно отправлена!'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Не удалось отправить заявку'),
+        ),
+      );
+    }
   }
 
   @override
@@ -118,7 +154,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   return 'Введите ваше имя';
                 }
                 if (value.trim().length < 2) {
-                  return 'Имя должно содержать минимум 2 символа';
+                  return 'Минимум 2 символа';
                 }
                 return null;
               },
@@ -144,7 +180,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   return 'Введите номер телефона';
                 }
                 if (!RegExp(r'^373\d{8}$').hasMatch(value)) {
-                  return 'Введите номер в формате 373XXXXXXXX';
+                  return 'Формат: 373XXXXXXXX';
                 }
                 return null;
               },
@@ -166,7 +202,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   return 'Выберите дату и время';
                 }
                 if (!_selectedDateTime!.isAfter(DateTime.now())) {
-                  return 'Выберите будущую дату и время';
+                  return 'Выберите будущее время';
                 }
                 return null;
               },
@@ -176,8 +212,16 @@ class _BookingScreenState extends State<BookingScreen> {
             SizedBox(
               height: 48,
               child: FilledButton(
-                onPressed: _submit,
-                child: const Text('Отправить заявку'),
+                onPressed: _isSubmitting ? null : _submit,
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Отправить заявку'),
               ),
             ),
           ],
