@@ -1,5 +1,6 @@
+import '../models/property.dart';
 import 'package:flutter/material.dart';
-import '../data/mock_data.dart';
+
 
 class PropertyCard extends StatelessWidget {
   final Property property;
