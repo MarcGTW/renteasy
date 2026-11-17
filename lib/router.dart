@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import 'data/mock_data.dart';
+import 'models/property_model.dart';
 import 'screens/home_screen.dart';
 import 'screens/catalog_screen.dart';
 import 'screens/favorites_screen.dart';
@@ -15,19 +16,15 @@ import 'widgets/app_shell.dart';
 final GoRouter router = GoRouter(
   initialLocation: '/login',
   routes: [
-    // Экран авторизации находится вне нижней панели
     GoRoute(
       path: '/login',
       builder: (context, state) => const AuthScreen(),
     ),
-
-    // Постоянная нижняя панель навигации
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        // Вкладка 1: Главная
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -36,44 +33,58 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-
-        // Вкладка 2: Каталог недвижимости
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/properties',
               builder: (context, state) => const CatalogScreen(),
               routes: [
-                // Детальная информация о недвижимости
                 GoRoute(
                   path: ':id',
                   builder: (context, state) {
                     final id = state.pathParameters['id']!;
-
-                    final property = mockProperties
-                        .where((item) => item.id == id)
-                        .firstOrNull;
-
-                    if (property == null) {
-                      return const Scaffold(
-                        body: Center(
-                          child: Text('Объект недвижимости не найден'),
-                        ),
-                      );
-                    }
-
-                    return DetailsScreen(property: property);
+                    return DetailsScreen(propertyId: id);
                   },
                   routes: [
-                    // Запись на просмотр
                     GoRoute(
                       path: 'book',
                       builder: (context, state) {
                         final id = state.pathParameters['id']!;
+                        final property = context
+                            .watch<PropertyModel>()
+                            .byId(id);
 
-                        final property = mockProperties
-                            .where((item) => item.id == id)
-                            .firstOrNull;
+                        final propertyModel =
+                            context.watch<PropertyModel>();
+
+                        if (propertyModel.isLoading) {
+                          return const Scaffold(
+                            body: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                        }
+
+                        if (propertyModel.error != null) {
+                          return Scaffold(
+                            body: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(propertyModel.error!),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      context
+                                          .read<PropertyModel>()
+                                          .load();
+                                    },
+                                    child: const Text('Повторить'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
 
                         if (property == null) {
                           return const Scaffold(
@@ -96,8 +107,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-
-        // Вкладка 3: Заявки
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -106,8 +115,6 @@ final GoRouter router = GoRouter(
             ),
           ],
         ),
-
-        // Вкладка 4: Профиль
         StatefulShellBranch(
           routes: [
             GoRoute(
