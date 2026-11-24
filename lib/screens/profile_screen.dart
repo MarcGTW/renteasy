@@ -1,20 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../data/mock_property_repository.dart';
-import '../data/mock_booking_repository.dart';
+import '../data/auth_api.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _simulateError = false;
 
   Future<void> _logout(BuildContext context) async {
     final ok = await showDialog<bool>(
@@ -42,7 +33,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     if (ok == true && context.mounted) {
-      context.go('/login');
+      await context.read<AuthApi>().logout();
+      if (context.mounted) {
+        context.go('/login');
+      }
     }
   }
 
@@ -85,25 +79,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: Icon(Icons.settings),
             title: Text('Настройки уведомлений'),
           ),
-          const Divider(height: 32),
-
-          SwitchListTile(
-            secondary: const Icon(Icons.wifi_off),
-            title: const Text('Симулировать сбой сети'),
-            subtitle: const Text(
-              'Включите, чтобы проверить обработку ошибок',
-            ),
-            value: _simulateError,
-            onChanged: (value) {
-  setState(() {
-    _simulateError = value;
-  });
-
-  context.read<MockPropertyRepository>().simulateError = value;
-  context.read<MockBookingRepository>().simulateError = value;
-},
-          ),
-
           const Divider(height: 32),
           ListTile(
             leading: const Icon(
