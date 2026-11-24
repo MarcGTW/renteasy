@@ -1,0 +1,17 @@
+name: rent_easy_server
+description: RentEasy backend (Dart port of the PAM backend template).
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: ^3.13.0
+dependencies:
+  crypto: ^3.0.8
+  dart_jsonwebtoken: ^3.4.1
+  mime: ^2.1.0
+  shelf: ^1.4.3
+  shelf_router: ^1.1.5
+  sqlite3: ^3.9.2
+dev_dependencies:
+  http: ^1.6.0
+
