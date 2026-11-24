@@ -8,9 +8,15 @@
   (shelf + sqlite3 + JWT). Запуск: `cd server && dart run` → `http://localhost:8080`.
   Подробности, контракт и набор тестов соответствия — в [server/README.md](server/README.md).
 
-Запуск приложения на эмуляторе Android (сервер на ноутбуке виден как `10.0.2.2`):
+Запуск приложения на физическом телефоне по USB (проброс порта к серверу на ноутбуке):
 
-```bash
-flutter run                                   # apiBase = http://10.0.2.2:8080
-flutter run -d chrome --dart-define=API_BASE=http://localhost:8080   # web / desktop
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8080 tcp:8080
+flutter run                                   # apiBase = http://localhost:8080
+```
+
+Для Android-эмулятора без `adb reverse`:
+
+```powershell
+flutter run --dart-define=API_BASE=http://10.0.2.2:8080
 ```
