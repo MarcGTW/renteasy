@@ -69,8 +69,30 @@ class FavoritesScreen extends StatelessWidget {
                     '${item.id} • ${item.date} в ${item.time}',
                   ),
                   isThreeLine: true,
-                  trailing: StatusBadge(
-                    status: item.status,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      StatusBadge(status: item.status),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Удалить заявку',
+                        onPressed: () async {
+                          final model = context.read<BookingModel>();
+                          final messenger = ScaffoldMessenger.of(context);
+                          final ok = await model.remove(item.id);
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                ok
+                                    ? 'Заявка удалена'
+                                    : (model.error ??
+                                          'Не удалось удалить заявку'),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               );
