@@ -18,6 +18,26 @@ class Booking {
     required this.status,
   });
 
+  factory Booking.fromJson(Map<String, dynamic> j) => Booking(
+    id: (j['id'] as int).toString(),
+    propertyTitle: j['propertyTitle'] as String,
+    name: j['name'] as String,
+    phone: j['phone'] as String? ?? '',
+    date: j['date'] as String? ?? '',
+    time: j['time'] as String? ?? '',
+    status: j['status'] as String? ?? 'Ожидает',
+  );
+
+  /// Без `id` — идентичность выдаёт сервер.
+  Map<String, dynamic> toJson() => {
+    'propertyTitle': propertyTitle,
+    'name': name,
+    'phone': phone,
+    'date': date,
+    'time': time,
+    'status': status,
+  };
+
   Booking copyWith({
     String? id,
     String? propertyTitle,
