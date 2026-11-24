@@ -1,43 +1,62 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'data/mock_property_repository.dart';
-import 'data/property_repository.dart';
-import 'data/mock_booking_repository.dart';
+import 'data/auth_api.dart';
 import 'data/booking_repository.dart';
-import 'models/property_model.dart';
+import 'data/http_booking_repository.dart';
+import 'data/http_property_repository.dart';
+import 'data/property_repository.dart';
+import 'data/token_store.dart';
 import 'models/booking_model.dart';
+import 'models/property_model.dart';
 import 'router.dart';
 
-void main() {
+const apiBase = String.fromEnvironment(
+  'API_BASE',
+  defaultValue: 'http://10.0.2.2:8080',
+);
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final tokens = TokenStore();
+  final loggedIn = await tokens.read() != null;
+
+  router = buildRouter(initialLocation: loggedIn ? '/home' : '/login');
+
+  void handleUnauthorized() => router.go('/login');
+
+  final propertyRepository = HttpPropertyRepository(
+    apiBase,
+    tokens,
+    onUnauthorized: handleUnauthorized,
+  );
+  final bookingRepository = HttpBookingRepository(
+    apiBase,
+    tokens,
+    onUnauthorized: handleUnauthorized,
+  );
+
   runApp(
     MultiProvider(
       providers: [
-        Provider<MockPropertyRepository>(
-          create: (_) => MockPropertyRepository(),
+        Provider<AuthApi>(
+          create: (_) => AuthApi(apiBase, tokens),
         ),
-        Provider<PropertyRepository>(
-          create: (context) =>
-              context.read<MockPropertyRepository>(),
-        ),
+        Provider<PropertyRepository>.value(value: propertyRepository),
         ChangeNotifierProvider(
-          create: (context) => PropertyModel(
-            context.read<PropertyRepository>(),
-          )..load(),
+          create: (_) {
+            final model = PropertyModel(propertyRepository);
+            if (loggedIn) model.load();
+            return model;
+          },
         ),
-
-        Provider<MockBookingRepository>(
-          create: (_) => MockBookingRepository(),
-        ),
-        Provider<BookingRepository>(
-          create: (context) =>
-              context.read<MockBookingRepository>(),
-        ),
+        Provider<BookingRepository>.value(value: bookingRepository),
         ChangeNotifierProvider(
-          create: (context) => BookingModel(
-            context.read<BookingRepository>(),
-          )..load(),
+          create: (_) {
+            final model = BookingModel(bookingRepository);
+            if (loggedIn) model.load();
+            return model;
+          },
         ),
       ],
       child: const RentEasyApp(),
