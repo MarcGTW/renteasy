@@ -13,8 +13,10 @@ import 'screens/details_screen.dart';
 import 'screens/booking_screen.dart';
 import 'widgets/app_shell.dart';
 
-final GoRouter router = GoRouter(
-  initialLocation: '/login',
+late final GoRouter router;
+
+GoRouter buildRouter({required String initialLocation}) => GoRouter(
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: '/login',
